@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A Game | GT Scholars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e1e5ee;
+        }
+
+        .logo {
+            height: 80px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .game-area {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .players-section {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            max-width: 300px;
+        }
+
+        .game-section {
+            flex: 3;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+
+        .section-title {
+            color: #3498db;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .player-list {
+            list-style: none;
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e1e5ee;
+        }
+
+        .player-name {
+            font-weight: 600;
+        }
+
+        .player-score {
+            color: #2ecc71;
+            font-weight: 700;
+        }
+
+        .drop-zones {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .drop-zone {
+            flex: 1;
+            min-height: 200px;
+            border: 3px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        .drop-zone.highlight {
+            border-color: #3498db;
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .drop-zone-title {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+
+        .draggable-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .draggable {
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 6px;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .draggable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+        }
+
+        .question {
+            background-color: #3498db;
+        }
+
+        .answer {
+            background-color: #2ecc71;
+        }
+
+        .topic-filter {
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 10px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .check-answers {
+            background-color: #2ecc71;
+            margin-top: 20px;
+        }
+
+        .check-answers:hover {
+            background-color: #27ae60;
+        }
+
+        .reset-game {
+            background-color: #e74c3c;
+            margin-left: 15px;
+        }
+
+        .reset-game:hover {
+            background-color: #c0392b;
+        }
+
+        .matched {
+            border: 3px solid #27ae60 !important;
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+
+        .incorrect {
+            border: 3px solid #e74c3c !important;
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .correct-feedback {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            border: 1px solid #2ecc71;
+        }
+
+        .incorrect-feedback {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #c0392b;
+            border: 1px solid #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="GT Scholars Logo.png" alt="GT Scholars Logo" class="logo">
+            <h1>Q&A Matching Game</h1>
+        </header>
+
+        <div class="game-area">
+            <div class="players-section">
+                <h2 class="section-title">Players</h2>
+                <ul class="player-list" id="playerList"></ul>
+            </div>
+
+            <div class="game-section">
+                <h2 class="section-title">Match Questions with Answers</h2>
+                
+                <div class="topic-filter">
+                    <label for="topicSelect">Filter by Topic:</label>
+                    <select id="topicSelect">
+                        <option value="all">All Topics</option>
+                    </select>
+                </div>
+
+                <div class="draggable-items" id="questionsContainer"></div>
+
+                <div class="drop-zones">
+                    <div class="drop-zone" id="questionsDropZone">
+                        <div class="drop-zone-title">Questions</div>
+                    </div>
+                    <div class="drop-zone" id="answersDropZone">
+                        <div class="drop-zone-title">Answers</div>
+                    </div>
+                </div>
+
+                <button id="checkAnswers" class="check-answers">Check Answers</button>
+                <button id="resetGame" class="reset-game">Reset Game</button>
+
+                <div id="feedback" class="feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        let players = [];
+        let qaPairs = [];
+        let currentPlayer = '';
+        let scores = {};
+        let draggedItem = null;
+        let currentGameId = '';
+
+        // DOM elements
+        const playerList = document.getElementById('playerList');
+        const questionsContainer = document.getElementById('questionsContainer');
+        const questionsDropZone = document.getElementById('questionsDropZone');
+        const answersDropZone = document.getElementById('answersDropZone');
+        const checkAnswersBtn = document.getElementById('checkAnswers');
+        const resetGameBtn = document.getElementById('resetGame');
+        const feedbackDiv = document.getElementById('feedback');
+        const topicSelect = document.getElementById('topicSelect');
+
+        // Initialize game
+        function initGame() {
+            // Get game ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentGameId = urlParams.get('gameId');
+
+            // Load players and Q&A pairs from localStorage
+            const savedPlayers = localStorage.getItem(`game_${currentGameId}_players`);
+            const savedQA = localStorage.getItem(`game_${currentGameId}_qa`);
+            
+            if (savedPlayers) players = JSON.parse(savedPlayers);
+            if (savedQA) qaPairs = JSON.parse(savedQA);
+
+            // Initialize scores
+            players.forEach(player => {
+                scores[player] = 0;
+            });
+
+            // Set current player (first player by default)
+            if (players.length > 0) {
+                currentPlayer = players[0];
+            }
+
+            // Update player list display
+            updatePlayerList();
+
+            // Populate topic filter
+            populateTopicFilter();
+
+            // Create draggable items
+            createDraggableItems();
+
+            // Set up drag and drop events
+            setupDragAndDrop();
+        }
+
+        // Update player list display
+        function updatePlayerList() {
+            playerList.innerHTML = '';
+            players.forEach(player => {
+                const playerItem = document.createElement('li');
+                playerItem.className = 'player-item';
+                playerItem.innerHTML = `
+                    <span class="player-name">${player}</span>
+                    <span class="player-score">${scores[player] || 0}</span>
+                `;
+                playerList.appendChild(playerItem);
+            });
+        }
+
+        // Populate topic filter dropdown
+        function populateTopicFilter() {
+            const topics = [...new Set(qaPairs.map(pair => pair.topic))];
+            topicSelect.innerHTML = '<option value="all">All Topics</option>';
+            
+            topics.forEach(topic => {
+                const option = document.createElement('option');
+                option.value = topic;
+                option.textContent = topic;
+                topicSelect.appendChild(option);
+            });
+
+            topicSelect.addEventListener('change', filterByTopic);
+        }
+
+        // Filter Q&A by topic
+        function filterByTopic() {
+            const selectedTopic = topicSelect.value;
+            createDraggableItems(selectedTopic);
+        }
+
+        // Create draggable question and answer items
+        function createDraggableItems(topic = 'all') {
+            questionsContainer.innerHTML = '';
+            
+            const filteredPairs = topic === 'all' 
+                ? qaPairs 
+                : qaPairs.filter(pair => pair.topic === topic);
+            
+            // Shuffle the pairs for random order
+            const shuffledPairs = [...filteredPairs].sort(() => Math.random() - 0.5);
+            
+            // Create question draggables
+            shuffledPairs.forEach((pair, index) => {
+                const questionElem = document.createElement('div');
+                questionElem.className = 'draggable question';
+                questionElem.textContent = pair.question;
+                questionElem.draggable = true;
+                questionElem.dataset.index = index;
+                questionElem.dataset.type = 'question';
+                questionsContainer.appendChild(questionElem);
+            });
+            
+            // Create answer draggables
+            shuffledPairs.forEach((pair, index) => {
+                const answerElem = document.createElement('div');
+                answerElem.className = 'draggable answer';
+                answerElem.textContent = pair.answer;
+                answerElem.draggable = true;
+                answerElem.dataset.index = index;
+                answerElem.dataset.type = 'answer';
+                questionsContainer.appendChild(answerElem);
+            });
+        }
+
+        // Set up drag and drop functionality
+        function setupDragAndDrop() {
+            // Drag start event
+            document.addEventListener('dragstart', e => {
+                if (e.target.classList.contains('draggable')) {
+                    draggedItem = e.target;
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', e.target.dataset.index);
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+
+            // Drag end event
+            document.addEventListener('dragend', e => {
+                if (e.target.classList.contains('draggable')) {
+                    e.target.classList.remove('dragging');
+                }
+            });
+
+            // Drag over events for drop zones
+            [questionsDropZone, answersDropZone].forEach(zone => {
+                zone.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    zone.classList.add('highlight');
+                    e.dataTransfer.dropEffect = 'move';
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('highlight');
+                });
+
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('highlight');
+                    
+                    if (draggedItem) {
+                        // Check if the drop is valid (questions to questions zone, answers to answers zone)
+                        const isQuestion = draggedItem.dataset.type === 'question';
+                        const isQuestionsZone = zone.id === 'questionsDropZone';
+                        
+                        if ((isQuestion && isQuestionsZone) || (!isQuestion && !isQuestionsZone)) {
+                            zone.appendChild(draggedItem);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Check answers
+        checkAnswersBtn.addEventListener('click', () => {
+            const questionsInZone = [...questionsDropZone.querySelectorAll('.draggable')];
+            const answersInZone = [...answersDropZone.querySelectorAll('.draggable')];
+            
+            // Reset all feedback
+            feedbackDiv.style.display = 'none';
+            questionsInZone.forEach(q => q.classList.remove('matched', 'incorrect'));
+            answersInZone.forEach(a => a.classList.remove('matched', 'incorrect'));
+            
+            // Check if all items are placed
+            if (questionsInZone.length !== answersInZone.length || 
+                questionsInZone.length !== qaPairs.length) {
+                showFeedback('Please match all questions with answers before checking!', false);
+                return;
+            }
+            
+            let correctMatches = 0;
+            
+            // Check each question-answer pair
+            for (let i = 0; i < questionsInZone.length; i++) {
+                const questionIndex = questionsInZone[i].dataset.index;
+                const answerIndex = answersInZone[i].dataset.index;
+                
+                if (questionIndex === answerIndex) {
+                    questionsInZone[i].classList.add('matched');
+                    answersInZone[i].classList.add('matched');
+                    correctMatches++;
+                } else {
+                    questionsInZone[i].classList.add('incorrect');
+                    answersInZone[i].classList.add('incorrect');
+                }
+            }
+            
+            // Update score
+            if (currentPlayer) {
+                scores[currentPlayer] = correctMatches;
+                updatePlayerList();
+            }
+            
+            // Show feedback
+            const percentage = Math.round((correctMatches / qaPairs.length) * 100);
+            if (correctMatches === qaPairs.length) {
+                showFeedback(`Perfect! You got all ${qaPairs.length} matches correct!`, true);
+            } else {
+                showFeedback(`You got ${correctMatches} out of ${qaPairs.length} correct (${percentage}%)`, 
+                             correctMatches === qaPairs.length);
+            }
+        });
+
+        // Reset game
+        resetGameBtn.addEventListener('click', () => {
+            // Clear drop zones
+            questionsDropZone.innerHTML = '<div class="drop-zone-title">Questions</div>';
+            answersDropZone.innerHTML = '<div class="drop-zone-title">Answers</div>';
+            
+            // Recreate draggable items
+            createDraggableItems(topicSelect.value);
+            
+            // Clear feedback
+            feedbackDiv.style.display = 'none';
+        });
+
+        // Show feedback message
+        function showFeedback(message, isCorrect) {
+            feedbackDiv.textContent = message;
+            feedbackDiv.className = 'feedback ' + (isCorrect ? 'correct-feedback' : 'incorrect-feedback');
+            feedbackDiv.style.display = 'block';
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>

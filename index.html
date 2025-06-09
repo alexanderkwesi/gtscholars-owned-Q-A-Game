@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A Game Setup | GT Scholars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e1e5ee;
+        }
+
+        .logo {
+            height: 80px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #3498db;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5ee;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .player-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .player-tag {
+            background-color: #e1e5ee;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .player-tag button {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            margin-left: 8px;
+            padding: 0;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #gameLink {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px dashed #ccc;
+            margin-top: 20px;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background-color: #2ecc71;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="GT Scholars Logo.png" alt="GT Scholars Logo" class="logo">
+            <h1>Q&A Game Setup</h1>
+        </header>
+
+        <div class="section">
+            <h2 class="section-title">Player Registration</h2>
+            <div class="form-group">
+                <label for="username">Enter Your Username</label>
+                <input type="text" id="username" placeholder="e.g. Scholar123">
+            </div>
+            <button id="addPlayer">Add Player</button>
+            
+            <div class="player-list" id="playerList"></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Add Questions & Answers</h2>
+            <div class="form-group">
+                <label for="topic">Topic</label>
+                <input type="text" id="topic" placeholder="e.g. Science, History, Math">
+            </div>
+            <div class="form-group">
+                <label for="question">Question</label>
+                <textarea id="question" placeholder="Enter your question here"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="answer">Answer</label>
+                <textarea id="answer" placeholder="Enter the answer here"></textarea>
+            </div>
+            <button id="addQA">Add Q&A Pair</button>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Game Data</h2>
+            <button id="exportData">Export Q&A to CSV</button>
+            <div id="gameLinkContainer" class="hidden">
+                <p>Your game is ready! Share this link:</p>
+                <div id="gameLink"></div>
+                <button id="copyLink" class="copy-btn">Copy Link</button>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button id="viewGame" class="btn-secondary">View Game Page</button>
+        </div>
+    </div>
+
+    <script>
+        // Store players and Q&A pairs
+        let players = [];
+        let qaPairs = [];
+        let currentGameId = Date.now().toString();
+
+        // DOM elements
+        const usernameInput = document.getElementById('username');
+        const addPlayerBtn = document.getElementById('addPlayer');
+        const playerList = document.getElementById('playerList');
+        const topicInput = document.getElementById('topic');
+        const questionInput = document.getElementById('question');
+        const answerInput = document.getElementById('answer');
+        const addQABtn = document.getElementById('addQA');
+        const exportBtn = document.getElementById('exportData');
+        const viewGameBtn = document.getElementById('viewGame');
+        const gameLinkContainer = document.getElementById('gameLinkContainer');
+        const gameLink = document.getElementById('gameLink');
+        const copyLinkBtn = document.getElementById('copyLink');
+
+        // Add player
+        addPlayerBtn.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            if (username && !players.includes(username)) {
+                players.push(username);
+                updatePlayerList();
+                usernameInput.value = '';
+                saveToLocalStorage();
+            } else if (players.includes(username)) {
+                alert('This username is already taken!');
+            }
+        });
+
+        // Update player list display
+        function updatePlayerList() {
+            playerList.innerHTML = '';
+            players.forEach(player => {
+                const playerTag = document.createElement('div');
+                playerTag.className = 'player-tag';
+                playerTag.innerHTML = `
+                    ${player}
+                    <button data-player="${player}">&times;</button>
+                `;
+                playerList.appendChild(playerTag);
+            });
+
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.player-tag button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const playerToRemove = e.target.getAttribute('data-player');
+                    players = players.filter(p => p !== playerToRemove);
+                    updatePlayerList();
+                    saveToLocalStorage();
+                });
+            });
+        }
+
+        // Add Q&A pair
+        addQABtn.addEventListener('click', () => {
+            const topic = topicInput.value.trim();
+            const question = questionInput.value.trim();
+            const answer = answerInput.value.trim();
+
+            if (topic && question && answer) {
+                qaPairs.push({
+                    topic,
+                    question,
+                    answer
+                });
+                
+                topicInput.value = '';
+                questionInput.value = '';
+                answerInput.value = '';
+                saveToLocalStorage();
+                alert('Q&A pair added successfully!');
+            } else {
+                alert('Please fill in all fields!');
+            }
+        });
+
+        // Export to CSV
+        exportBtn.addEventListener('click', () => {
+            if (qaPairs.length === 0) {
+                alert('No Q&A pairs to export!');
+                return;
+            }
+
+            // Create questions CSV
+            let questionsCSV = 'Topic,Question\n';
+            qaPairs.forEach(pair => {
+                questionsCSV += `"${pair.topic.replace(/"/g, '""')}","${pair.question.replace(/"/g, '""')}"\n`;
+            });
+
+            // Create answers CSV
+            let answersCSV = 'Topic,Answer\n';
+            qaPairs.forEach(pair => {
+                answersCSV += `"${pair.topic.replace(/"/g, '""')}","${pair.answer.replace(/"/g, '""')}"\n`;
+            });
+
+            // Create download links
+            downloadCSV(questionsCSV, `questions_${currentGameId}.csv`);
+            downloadCSV(answersCSV, `answers_${currentGameId}.csv`);
+
+            // Show game link
+            const gameUrl = `${window.location.href.replace('index.html', '')}game.html?gameId=${currentGameId}`;
+            gameLink.textContent = gameUrl;
+            gameLinkContainer.classList.remove('hidden');
+        });
+
+        // Helper function to download CSV
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // View game page
+        viewGameBtn.addEventListener('click', () => {
+            if (qaPairs.length === 0) {
+                alert('Please add at least one Q&A pair before viewing the game!');
+                return;
+            }
+            
+            saveToLocalStorage();
+            window.location.href = `game.html?gameId=${currentGameId}`;
+        });
+
+        // Copy game link
+        copyLinkBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(gameLink.textContent)
+                .then(() => alert('Link copied to clipboard!'))
+                .catch(err => console.error('Failed to copy: ', err));
+        });
+
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem(`game_${currentGameId}_players`, JSON.stringify(players));
+            localStorage.setItem(`game_${currentGameId}_qa`, JSON.stringify(qaPairs));
+        }
+
+        // Load data from localStorage if gameId exists in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('gameId')) {
+            currentGameId = urlParams.get('gameId');
+            const savedPlayers = localStorage.getItem(`game_${currentGameId}_players`);
+            const savedQA = localStorage.getItem(`game_${currentGameId}_qa`);
+            
+            if (savedPlayers) players = JSON.parse(savedPlayers);
+            if (savedQA) qaPairs = JSON.parse(savedQA);
+            
+            updatePlayerList();
+        }
+    </script>
+</body>
+</html>
